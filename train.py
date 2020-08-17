@@ -1,53 +1,64 @@
 import os
 import csv
 import torch
+from torch import nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader, random_split
 from transformers import *
 
-def load():
-    reader = csv.DictReader(open("./training.csv"))
-    for row in reader:
-        print(row)
-        get_bert_emb(row["BEFORE_HEADLINE"])
-        break
+from model import Model
+from data import Data
 
 
-BERT_MODEL_CLASSES = [BertModel, BertForPreTraining, BertForMaskedLM, BertForNextSentencePrediction,
-                      BertForSequenceClassification, BertForTokenClassification, BertForQuestionAnswering]
+class Train:
 
-def get_bert_emb(sentence):
-    model_class = BertModel
-    tokenizer_class = BertTokenizer
+    def __init__(self, batch_size=32, learning_rate=0.0005, epochs=10):
 
-    tokenizer = tokenizer_class.from_pretrained("bert-base-uncased")
-    model = model_class.from_pretrained("bert-base-uncased")
+        self.epochs = epochs
+        self.learing_rate = learning_rate
+        self.batch_size = batch_size
 
-    inputs = tokenizer.encode_plus(
-        sentence,
-        None,
-        add_special_tokens=True,
-        max_length=200,
-        pad_to_max_length=True,
-        return_token_type_ids=True
-    )
-    ids = inputs['input_ids']
-    mask = inputs['attention_mask']
-    token_type_ids = inputs["token_type_ids"]
+        self.data = Data()
+        self.train_num = int(len(self.data) * 0.75)
+        self.vali_num = len(self.data) - self.train_num
+        train_set, vali_set = random_split(self.data, [self.train_num , self.vali_num])
+        self.train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=4)
+        self.vali_loader = DataLoader(train_set, batch_size=batch_size, num_workers=4)
 
-    input_ids = torch.tensor([ids], dtype=torch.long)
-    input_mask = torch.tensor([mask], dtype=torch.long)
-    input_token_type_ids = torch.tensor([token_type_ids], dtype=torch.long)
-    print(input_ids.size())
-    print(input_ids)
-    print(input_mask.size())
-    print(input_mask)
-    print(input_token_type_ids.size())
-    print(input_token_type_ids)
-    with torch.no_grad():
-        _, last_hidden_states = model(input_ids, attention_mask=input_mask, token_type_ids=input_token_type_ids)
-        print(last_hidden_states)
-        print(last_hidden_states.size())
+        self.model = nn.DataParallel(Model())
+        self.model = self.model.to(device)
 
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+        self.criterion = nn.BCELoss(reduction="sum")
+
+    def train(self):
+        self.model.train()
+        train_loss = 0
+        for x1, x2, y in self.train_loader:
+            pred = self.model(x1, x2)
+            loss = self.criterion(pred, y)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            train_loss += loss.item()
+        return train_loss / self.train_num
+
+    def vali(self):
+        self.model.eval()
+        vali_loss = 0
+        for x1, x2, y in self.train_loader:
+            pred = self.model(x1, x2)
+            loss = self.criterion(pred, y)
+            vali_loss += loss.item()
+        return vali_loss / self.vali_num
+
+    def run(self):
+        for epoch in range(self.epochs):
+            train_loss = self.train()
+            vali_loss = self.vali()
+            print(epoch, train_loss, vali_loss)
 
 
 if __name__ == "__main__":
-    load()
+    train = Train()
+    train.run()
