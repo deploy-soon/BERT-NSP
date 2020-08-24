@@ -27,8 +27,8 @@ def covert_bert():
     reader = csv.DictReader(open("./evaluation.csv"))
     before_ids, before_mask, after_ids, after_mask = [], [], [], []
     for row in tqdm(reader):
-        before = row["NEWS_1_BODY"]
-        after = row["NEWS_2_BODY"]
+        before = row["NEWS1_BODY"]
+        after = row["NEWS2_BODY"]
         _before_ids, _before_mask = get_tokenize(before)
         _after_ids, _after_mask = get_tokenize(after)
         before_ids.append(_before_ids)
@@ -73,8 +73,8 @@ def covert_bert_num():
     reader = csv.DictReader(open("./evaluation.csv"))
     before_ids, before_mask, after_ids, after_mask = [], [], [], []
     for row in tqdm(reader):
-        before = row["NEWS_1_BODY"]
-        after = row["NEWS_2_BODY"]
+        before = row["NEWS1_BODY"]
+        after = row["NEWS2_BODY"]
         _before_ids, _before_mask = get_tokenize(before)
         _after_ids, _after_mask = get_tokenize(after)
         before_ids.append(_before_ids)
@@ -141,10 +141,10 @@ def test():
     fout = open("answer.csv", "w")
     writer = csv.writer(fout)
     for i, r in enumerate(res):
-        writer.writerow([i+1, 1, 0] if r > 0.5 else [i+1, 0, 1])
+        writer.writerow([i+1, 0, 1] if r > 0.5 else [i+1, 1, 0])
 
 
 if __name__ == "__main__":
-    covert_bert()
-    covert_bert_num()
+    #covert_bert()
+    #covert_bert_num()
     test()
