@@ -7,7 +7,7 @@ BERT를 사용하기에 앞서 BERT의 결과물을 통해 다른 모델을 학�
 - 이후 문단 예시
 > Domestic natural gas benchmark prices may be restrained in the near term given resilient output, in-line storage levels and expectations of less winter heating demand. Milder weather is forecast for the next eight to 14 days. While prices may show seasonal volatility, gas demand will remain restrained near-term if weather is subdued. Gas must compete for market share with coal and nuclear power. Near-term capacity constraints and weather will continue to affect winter basis differentials.
 
-데이터는 영어로 되어 있으며 문맥 안에 시간의 정보가 있을 수도 있으며 없을 수도 있다. 
+데이터는 영어로 되어 있으며 문맥 안에 시간의 정보가 있을 수도 있으며 없을 수도 있다. 두 문단을 통해 문단의 선후 관계를 예측하는 것이 본 문제의 목적이며 데이터는 총 20만 쌍이 주어져있따.
 ## Model Structure
 ## Result & Discussion
 
