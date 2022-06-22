@@ -10,7 +10,7 @@ future==0.18.2
 idna==2.10
 jmespath==0.10.0
 joblib==0.14.1
-numpy==1.18.4
+numpy==1.22.0
 opencv-python==4.2.0.34
 Pillow==7.1.2
 python-dateutil==2.8.1
