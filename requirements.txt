@@ -9,7 +9,7 @@ fire==0.3.1
 future==0.18.2
 idna==2.10
 jmespath==0.10.0
-joblib==0.14.1
+joblib==1.2.0
 numpy==1.18.4
 opencv-python==4.2.0.34
 Pillow==7.1.2
